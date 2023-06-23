@@ -209,7 +209,7 @@ fun DownloadAudioScreen(
                                 colors = ButtonDefaults.buttonColors(Color(0xFF892EFF)),
                             ) {
                                 Text(
-                                    text = "Download Another MP3",
+                                    text = "Download Another Media",
                                     style = TextStyle(
                                         fontFamily = FontFamily(Font(R.font.plusjakarta_semibold)),
                                         fontSize = 14.sp

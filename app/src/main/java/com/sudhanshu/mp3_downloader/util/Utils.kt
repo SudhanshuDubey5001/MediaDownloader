@@ -16,7 +16,7 @@ object Utils {
     const val LOG = "mylog"
 
     const val DOWNLOADING = "Downloading..."
-    const val CONVERTING = "Converting..."
+    const val CONVERTING = "Converting to MP3..."
     const val SAVING = "Saving..."
     const val SUCCESS = "Success"
     const val FAILED = "Failed"

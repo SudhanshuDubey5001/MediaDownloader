@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.*
+import java.time.Duration
 import javax.inject.Inject
 
 /**-----------DOWNLOAD VIEW MODEL CLASS------------**/
@@ -44,12 +45,10 @@ class DownloadVM @Inject constructor(
     val errorMessage = _errorMessage.asSharedFlow()
 
     // get the MetaData object to populate the video info
-    val metadataJSON = savedStateHandle.get<String>(Utils.METADATA_ID)
+    private val metadataJSON = savedStateHandle.get<String>(Utils.METADATA_ID)
     val metadata = metadataJSON?.let { Utils.fromJson(it) }
-//    lateinit var file: File
-//    lateinit var tempVideoFileName: String
 
-    val tempStorage =
+    private val tempStorage =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).absolutePath
 
     init {
@@ -57,7 +56,6 @@ class DownloadVM @Inject constructor(
     }
 
     fun startDownloadWithDownloadManager() {
-
         val constraints =
             Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
         val inoutData = Data.Builder()
@@ -66,14 +64,21 @@ class DownloadVM @Inject constructor(
         val workerRequest = OneTimeWorkRequestBuilder<DownloadService>()
             .setConstraints(constraints)
             .setInputData(inoutData)
+//            .setInitialDelay(Duration.ofSeconds(10))  //to delay the service
+            .setBackoffCriteria(    // to set the policy for Result.Retry()
+                backoffPolicy = BackoffPolicy.LINEAR,   // means it will retry in 15 seconds and for exponential = 15, 30, 60...
+                duration = Duration.ofSeconds(15)   // duration
+            )
             .build()
 
         viewModelScope.launch(Dispatchers.IO) {
+            _operationStage.emit(Utils.DOWNLOADING)
             WorkManager.getInstance(context).enqueue(workerRequest)
             onCompleteListener.collect {
-                Log.d(Utils.LOG, "Listener ran!!!!!")
+                Log.d(LOG, "Listener ran!!!!! ----> $it")
                 when (it) {
                     Utils.DOWNLOAD_COMPLETE -> {
+                        onCompleteListener.value = Utils.DOWNLOADING    //reset the listener
                         if (metadata?.mediaFormat == true) {
                             moveFileToDestination(tempStorage + "/${Utils.TEMP_VIDEO}")
                         } else {
@@ -84,7 +89,8 @@ class DownloadVM @Inject constructor(
                         }
                     }
                     Utils.DOWNLOAD_FAILED -> {
-
+                        _operationStage.emit(Utils.FAILED)
+                        freeUpResources()
                     }
                 }
             }
@@ -118,7 +124,6 @@ class DownloadVM @Inject constructor(
 
     private fun moveFileToDestination(sourceFilePath: String) {
         updateOperationStage(Utils.SAVING)
-
         try {
             val sourceFile = File(sourceFilePath)
             var destinationFile: File
