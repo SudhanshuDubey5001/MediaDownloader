@@ -109,7 +109,7 @@ fun GrabVideoLinkScreen(
                         Header()
 
                         Text(
-                            text = "YouTube Link",
+                            text = "Media Link",
                             style = TextStyle(
                                 fontFamily = FontFamily(Font(R.font.plusjakarta_semibold)),
                                 fontSize = 14.sp
@@ -278,7 +278,7 @@ fun GrabVideoLinkScreen(
                             )
                             Spacer(modifier = Modifier.width(7.dp))
                             Text(
-                                text = "Where do you want to save the MP3", style = TextStyle(
+                                text = "Where do you want to save the media", style = TextStyle(
                                     fontFamily = FontFamily(Font(R.font.plusjakarta_semibold)),
                                     fontSize = 12.sp,
                                     color = Color(0xFF858181)

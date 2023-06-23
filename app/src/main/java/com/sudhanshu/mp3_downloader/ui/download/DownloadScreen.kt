@@ -179,7 +179,7 @@ fun DownloadAudioScreen(
 
                                 Text(
                                     text = if (operationStage.value == Utils.SUCCESS)
-                                        "MP3 successfully saved into selected folder"
+                                        "Media successfully saved into selected folder"
                                     else "Please check your internet connection",
                                     style = TextStyle(
                                         fontFamily = FontFamily(Font(R.font.plusjakarta_semibold)),
